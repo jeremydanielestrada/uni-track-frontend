@@ -16,7 +16,7 @@ export const Button = ({
   type,
 }: ButtonProps) => {
   const baseClasses =
-    "cursor-pointer relative overflow-hidden rounded-full font-medium focus:outline-none  focus-visible:ring-2 focus-visible:ring-primary bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm shadow-primary/50 ";
+    "cursor-pointer relative overflow-hidden rounded font-medium focus:outline-none  focus-visible:ring-2 focus-visible:ring-primary bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm shadow-primary/50 ";
 
   const sizeClasses: { [key: string]: string } = {
     sm: "px-4 py-2 text-sm",
