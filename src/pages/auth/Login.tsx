@@ -15,7 +15,7 @@ function Login() {
           College Governor Dashboard
         </p>
       </div>
-      <Card classname="w-90  md:w-150 mx-auto">
+      <Card className="w-90  md:w-150 mx-auto">
         <LoginForm />
         <div className="pt-3 w-full">
           <span className="float-right text-sm text-gray-600">

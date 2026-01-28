@@ -1,12 +1,12 @@
 interface CardProps {
   children: React.ReactNode;
-  classname: string;
+  className: string;
 }
 
-function Card({ children, classname }: CardProps) {
+function Card({ children, className }: CardProps) {
   return (
     <div
-      className={`p-8 border border-secondary shadow-lg rounded ${classname}`}
+      className={`p-8 border border-secondary shadow-lg rounded ${className}`}
     >
       {children}
     </div>
