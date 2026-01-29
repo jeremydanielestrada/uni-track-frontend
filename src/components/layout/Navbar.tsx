@@ -2,13 +2,26 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useContext } from "react";
 import { AuthContext } from "../hooks/AuthContext";
+import { api } from "../../utils/Axios";
+import { useNavigate } from "react-router";
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const governor = useContext(AuthContext);
+  const navigate = useNavigate();
   // Derive the banner visibility directly from governor
 
   const isBannerVisible = !!governor;
+
+  const logOutGovernor = async () => {
+    try {
+      await api.post("/auth/logout");
+      localStorage.removeItem("token");
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <header className="bg-white border-b border-secondary sticky top-0 z-50">
@@ -23,9 +36,12 @@ function Navbar() {
         {isBannerVisible && (
           <div className="hidden md:flex items-center gap-3">
             <span className="text-sm text-muted-foreground">
-              Welcome College Governor {governor?.name.split(" ")[0]}
+              {`Welcome ${governor?.college_dep} Govenor ${governor?.name.split(" ")[0]}`}
             </span>
-            <button className="border rounded  py-1 px-4 border-primary text-primary hover:bg-primary/5 bg-transparent cursor-pointer">
+            <button
+              className="border rounded  py-1 px-4 border-primary text-primary hover:bg-primary/5 bg-transparent cursor-pointer"
+              onClick={logOutGovernor}
+            >
               Logout
             </button>
           </div>
@@ -46,9 +62,12 @@ function Navbar() {
           <div className="absolute top-16 left-0 right-0 bg-secondary border-b border-secondary p-4 md:hidden">
             <div className="flex flex-col gap-3">
               <span className="text-sm text-muted-foreground text-center">
-                College Governor
+                {`Welcome ${governor?.college_dep} Govenor ${governor?.name.split(" ")[0]}`}
               </span>
-              <button className="border rounded py-1 px-4 border-primary text-primary hover:bg-primary/5 bg-transparent cursor-pointer">
+              <button
+                className="border rounded py-1 px-4 border-primary text-primary hover:bg-primary/5 bg-transparent cursor-pointer"
+                onClick={logOutGovernor}
+              >
                 Logout
               </button>
             </div>
