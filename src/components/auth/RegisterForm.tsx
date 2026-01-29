@@ -2,7 +2,7 @@
 import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { Loader } from "lucide-react";
-import { useState } from "react";
+import { useState, type FormEventHandler } from "react";
 import { api } from "../../utils/Axios";
 import { formActionDefault } from "../../utils/Helpers";
 import type { Governor } from "../../App.types";
@@ -21,7 +21,7 @@ function RegisterForm() {
   const [isError, setIsError] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     setFormAction({ ...formAction, formProcess: true });
 
@@ -38,7 +38,7 @@ function RegisterForm() {
       setFormData(formDataDefault);
       setIsError(false);
 
-      navigate("/dashboard"); // Fixed: Added leading slash
+      navigate("/dashboard");
     } catch (err: any) {
       setIsError(true);
       setFormAction({
@@ -47,9 +47,10 @@ function RegisterForm() {
         formSuccessMessage: "",
       });
     } finally {
-      setFormAction((prev) => ({ ...prev, formProcess: false })); // Fixed: Use callback
+      setFormAction((prev) => ({ ...prev, formProcess: false }));
     }
   };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -57,11 +58,15 @@ function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <p
-        className={`text-center mb-3 font-semibold ${isError ? "text-red-500" : "text-green-500"}`}
-      >
-        {isError ? formAction.formErrorMessage : formAction.formSuccessMessage}
-      </p>
+      {(formAction.formErrorMessage || formAction.formSuccessMessage) && (
+        <p
+          className={`text-center mb-3 font-semibold ${isError ? "text-red-500" : "text-green-500"}`}
+        >
+          {isError
+            ? formAction.formErrorMessage
+            : formAction.formSuccessMessage}
+        </p>
+      )}
 
       <Input
         label="Name"
@@ -70,6 +75,7 @@ function RegisterForm() {
         name="name"
         onChange={handleChange}
         value={formData.name}
+        required
       />
       <Input
         label="ID-Num"
@@ -78,6 +84,7 @@ function RegisterForm() {
         name="id_num"
         onChange={handleChange}
         value={formData.id_num}
+        required
       />
       <Input
         label="College"
@@ -86,6 +93,7 @@ function RegisterForm() {
         name="college_dep"
         onChange={handleChange}
         value={formData.college_dep}
+        required
       />
       <Input
         label="Password"
@@ -94,6 +102,7 @@ function RegisterForm() {
         name="password"
         onChange={handleChange}
         value={formData.password}
+        required
       />
 
       <Button type="submit" className="mt-4 w-full rounded-md" size="sm">
