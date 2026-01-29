@@ -65,7 +65,7 @@ function LoginForm() {
       <Input
         label="ID-Num"
         type="text"
-        placeholder="e.g., CCIS, CAA, CED"
+        placeholder="e.g. 221-00000"
         name="id_num"
         onChange={handleChange}
         value={formData.id_num}
@@ -74,6 +74,7 @@ function LoginForm() {
       <Input
         label="Password"
         type="password"
+        name="password"
         onChange={handleChange}
         value={formData.password}
         required

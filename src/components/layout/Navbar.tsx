@@ -36,7 +36,7 @@ function Navbar() {
         {isBannerVisible && (
           <div className="hidden md:flex items-center gap-3">
             <span className="text-sm text-muted-foreground">
-              {`Welcome ${governor?.college_dep} Govenor ${governor?.name.split(" ")[0]}`}
+              {`Welcome ${governor?.college_dep} govenor ${governor?.name}`}
             </span>
             <button
               className="border rounded  py-1 px-4 border-primary text-primary hover:bg-primary/5 bg-transparent cursor-pointer"

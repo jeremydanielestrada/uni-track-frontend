@@ -12,7 +12,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const getAuthenticatedGovenor = async () => {
     try {
       const res = await api.get("/auth/governor");
-      setGovernor(res.data);
+      setGovernor(res.data.governor);
     } catch (err) {
       console.log(err);
     }
