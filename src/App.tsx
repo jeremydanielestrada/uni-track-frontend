@@ -1,11 +1,14 @@
 import { BrowserRouter } from "react-router";
 import AppRoutes from "./routes/AppRoutes";
+import { AuthProvider } from "./components/hooks/AuthContext";
 
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen  bg-background">
-        <AppRoutes />
+      <div className="min-h-screen  overflow-hidden  bg-background">
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
       </div>
     </BrowserRouter>
   );
