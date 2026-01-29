@@ -5,7 +5,7 @@ function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   return (
     <header className="bg-white border-b border-secondary sticky top-0 z-50">
-      <nav className="w-full  md:max-w-7xl  md:mx-auto px-3 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+      <nav className="w-full  md:mx-auto px-3 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-lg">📍</span>
