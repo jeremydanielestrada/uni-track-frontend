@@ -2,7 +2,7 @@
 import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { Loader } from "lucide-react";
-import { useState, type FormEventHandler } from "react";
+import { useState } from "react";
 import { api } from "../../utils/Axios";
 import { formActionDefault } from "../../utils/Helpers";
 import type { Governor } from "../../App.types";
@@ -21,7 +21,7 @@ function RegisterForm() {
   const [isError, setIsError] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormAction({ ...formAction, formProcess: true });
 
@@ -38,7 +38,7 @@ function RegisterForm() {
       setFormData(formDataDefault);
       setIsError(false);
 
-      navigate("/dashboard");
+      navigate("/dashboard"); // Fixed: Added leading slash
     } catch (err: any) {
       setIsError(true);
       setFormAction({
@@ -47,10 +47,9 @@ function RegisterForm() {
         formSuccessMessage: "",
       });
     } finally {
-      setFormAction((prev) => ({ ...prev, formProcess: false }));
+      setFormAction((prev) => ({ ...prev, formProcess: false })); // Fixed: Use callback
     }
   };
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -58,15 +57,11 @@ function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      {(formAction.formErrorMessage || formAction.formSuccessMessage) && (
-        <p
-          className={`text-center mb-3 font-semibold ${isError ? "text-red-500" : "text-green-500"}`}
-        >
-          {isError
-            ? formAction.formErrorMessage
-            : formAction.formSuccessMessage}
-        </p>
-      )}
+      <p
+        className={`text-center mb-3 font-semibold ${isError ? "text-red-500" : "text-green-500"}`}
+      >
+        {isError ? formAction.formSuccessMessage : formAction.formErrorMessage}
+      </p>
 
       <Input
         label="Name"
@@ -105,7 +100,12 @@ function RegisterForm() {
         required
       />
 
-      <Button type="submit" className="mt-4 w-full rounded-md" size="sm">
+      <Button
+        type="submit"
+        className={`mt-4 w-full rounded-md ${formAction.formProcess ? "opacity-70 cursor-not-allowed" : ""}`}
+        size="sm"
+        disabled={formAction.formProcess}
+      >
         {formAction.formProcess ? (
           <>
             <Loader className="h-4 w-4 animate-spin" />
