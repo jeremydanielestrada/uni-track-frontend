@@ -7,7 +7,8 @@ import { useNavigate } from "react-router";
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-  const governor = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
+  const governor = authContext?.governor;
   const navigate = useNavigate();
   // Derive the banner visibility directly from governor
 
@@ -17,6 +18,10 @@ function Navbar() {
     try {
       await api.post("/auth/logout");
       localStorage.removeItem("token");
+
+      // Clear context
+      authContext?.setGovernor(null);
+
       navigate("/");
     } catch (error) {
       console.log(error);

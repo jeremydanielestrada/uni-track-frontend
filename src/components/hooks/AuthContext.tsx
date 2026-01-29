@@ -3,34 +3,45 @@ import { createContext, useState, useEffect } from "react";
 import type { Governor } from "../../App.types";
 import { api } from "../../utils/Axios";
 
-export const AuthContext = createContext<Governor | null>(null);
+interface AuthContextType {
+  governor: Governor | null;
+  setGovernor: (governor: Governor | null) => void;
+  isLoading: boolean;
+}
+
+export const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [Governor, setGovernor] = useState<Governor | null>(null);
+  const [governor, setGovernor] = useState<Governor | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const getAuthenticatedGovenor = async () => {
-    try {
-      const res = await api.get("/auth/governor");
-      setGovernor(res.data.governor);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   useEffect(() => {
-    const initAuth = async () => {
+    const getAuthenticatedGovernor = async () => {
       const token = localStorage.getItem("token");
 
-      if (token) {
-        await getAuthenticatedGovenor();
+      if (!token) {
+        setGovernor(null);
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const res = await api.get("/auth/governor");
+        setGovernor(res.data.governor);
+      } catch (err) {
+        console.log(err);
+        setGovernor(null);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    initAuth();
+    getAuthenticatedGovernor();
   }, []);
 
   return (
-    <AuthContext.Provider value={Governor}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ governor, setGovernor, isLoading }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
