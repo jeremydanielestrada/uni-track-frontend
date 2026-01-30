@@ -1,21 +1,64 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Card from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import EventDialog from "../components/system/EventDialog";
 import EventList from "../components/system/EventList";
 import type { Event } from "../App.types";
+import { api } from "../utils/Axios";
+import { Loader } from "lucide-react";
 
 function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogVisible, setisDialogVisible] = useState(false);
   const [eventData, setEventData] = useState<Event | null>(null);
-  // const [uploadMessage, setUploadMessage] = useState("");
-  const events = [
-    { id: 1, name: "Programming Workshop", date: "22 Jan 2025", students: 6 },
-    { id: 2, name: "Leadership Summit", date: "20 Jan 2025", students: 8 },
-    { id: 3, name: "Career Fair", date: "15 Jan 2025", students: 7 },
-  ];
+  const [events, setEvents] = useState<Event[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const fetchEvents = async () => {
+    setIsLoading(true);
+    setErrorMessage("");
+    try {
+      const res = await api.get("/events/get");
+      setEvents(res.data.events);
+    } catch (error: any) {
+      setErrorMessage(error.response?.data?.message || "Error loading events");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const handleEditEvent = (event: Event) => {
+    setEventData(event);
+    setisDialogVisible(true);
+  };
+
+  const handleDeleteEvent = async (eventId: number) => {
+    if (!confirm("Are you sure you want to delete this event?")) return;
+
+    try {
+      await api.delete(`/events/delete/${eventId}`);
+      await fetchEvents(); // Refresh list
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Error deleting event");
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setisDialogVisible(false);
+    setEventData(null);
+  };
+
+  const handleEventSaved = () => {
+    fetchEvents(); // Refresh list after create/update
+    handleCloseDialog();
+  };
 
   const students = [
     { id: "STU001", name: "Juan Dela Cruz", hours: 24.5 },
@@ -58,11 +101,27 @@ function Dashboard() {
           </Button>
         </div>
 
-        <EventList />
+        {isLoading ? (
+          <div className="flex items-center justify-center h-48">
+            <Loader className="h-12 w-12 animate-spin text-primary" />
+          </div>
+        ) : errorMessage ? (
+          <div className="flex items-center justify-center h-48">
+            <h2 className="text-lg text-red-500">{errorMessage}</h2>
+          </div>
+        ) : (
+          <EventList
+            events={events}
+            onEdit={handleEditEvent}
+            onDelete={handleDeleteEvent}
+          />
+        )}
 
         <EventDialog
           isDialogVisible={isDialogVisible}
-          onClose={() => setisDialogVisible(!isDialogVisible)}
+          onClose={handleCloseDialog}
+          eventData={eventData}
+          onEventSaved={handleEventSaved}
         />
       </Card>
 

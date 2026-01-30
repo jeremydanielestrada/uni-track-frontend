@@ -11,7 +11,8 @@ import { api } from "../../utils/Axios";
 interface DialogProps {
   isDialogVisible: boolean;
   onClose: () => void;
-  eventData: Event;
+  eventData: Event | null;
+  onEventSaved: () => void;
 }
 
 type EventForm = Pick<Event, "name" | "date">;
@@ -20,47 +21,53 @@ const formDataDefault = {
   name: "",
   date: "",
 };
-function EventDialog({ isDialogVisible, eventData, onClose }: DialogProps) {
+function EventDialog({
+  isDialogVisible,
+  eventData,
+  onClose,
+  onEventSaved,
+}: DialogProps) {
   const [formData, setFormData] = useState<EventForm>(formDataDefault);
   const [formAction, setFormAction] = useState(formActionDefault);
   const [isUpdate, setIsUpdate] = useState<boolean>(false);
 
   useEffect(() => {
-    const checkForEventData = () => {
-      if (eventData) {
-        setIsUpdate(true);
-        setFormData({
-          name: eventData.name,
-          date: eventData.date,
-        });
-      } else {
-        setFormData(formDataDefault);
-        setIsUpdate(false);
-      }
-    };
-
-    checkForEventData();
-  }, []);
+    if (eventData) {
+      setIsUpdate(true);
+      setFormData({
+        name: eventData.name,
+        date: eventData.date,
+      });
+    } else {
+      setFormData(formDataDefault);
+      setIsUpdate(false);
+    }
+  }, [eventData]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setFormAction({ ...formAction, formProcess: true });
 
     try {
       const res = isUpdate
-        ? await api.put(`/events/update/${eventData.id}`, formData)
+        ? await api.put(`/events/update/${eventData!.id}`, formData)
         : await api.post("/events/create", formData);
 
       setFormAction({
         formProcess: false,
         formErrorMessage: "",
-        formSuccessMessage: res.data?.mesaage || "Event Created!",
+        formSuccessMessage: res.data?.message || "Event saved successfully!",
       });
       setFormData(formDataDefault);
+
+      // Call the callback to refresh events list
+      setTimeout(() => {
+        onEventSaved();
+      }, 500);
     } catch (error: any) {
       setFormAction({
         formProcess: false,
-        formErrorMessage:
-          error.response?.data?.message || "Error Creating Event",
+        formErrorMessage: error.response?.data?.message || "Error saving event",
         formSuccessMessage: "",
       });
     }
@@ -86,6 +93,16 @@ function EventDialog({ isDialogVisible, eventData, onClose }: DialogProps) {
               />
             </span>
             <form onSubmit={handleSubmit}>
+              {formAction.formErrorMessage && (
+                <p className="text-center mb-3 text-sm font-semibold text-red-500">
+                  {formAction.formErrorMessage}
+                </p>
+              )}
+              {formAction.formSuccessMessage && (
+                <p className="text-center mb-3 text-sm font-semibold text-green-500">
+                  {formAction.formSuccessMessage}
+                </p>
+              )}
               <Input
                 type="text"
                 label="Event"
