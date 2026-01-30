@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Card from "../ui/Card";
 import type { Event } from "../../App.types";
 import { Input } from "../ui/Input";
@@ -11,6 +11,7 @@ import { api } from "../../utils/Axios";
 interface DialogueProps {
   isDialogVisible: boolean;
   onClose: () => void;
+  eventData: Event;
 }
 
 type EventForm = Pick<Event, "name" | "date">;
@@ -19,15 +20,35 @@ const formDataDefault = {
   name: "",
   date: "",
 };
-function EventDialog({ isDialogVisible = false, onClose }: DialogueProps) {
+function EventDialog({ isDialogVisible, eventData, onClose }: DialogueProps) {
   const [formData, setFormData] = useState<EventForm>(formDataDefault);
   const [formAction, setFormAction] = useState(formActionDefault);
+  const [isUpdate, setIsUpdate] = useState<boolean>(false);
+
+  useEffect(() => {
+    const checkForEventData = () => {
+      if (eventData) {
+        setIsUpdate(true);
+        setFormData({
+          name: eventData.name,
+          date: eventData.date,
+        });
+      } else {
+        setFormData(formDataDefault);
+        setIsUpdate(false);
+      }
+    };
+
+    checkForEventData();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      const res = await api.post("/events/create", formData);
+      const res = isUpdate
+        ? await api.put(`/events/update/${eventData.id}`, formData)
+        : await api.post("/events/create", formData);
 
       setFormAction({
         formProcess: false,
@@ -93,7 +114,7 @@ function EventDialog({ isDialogVisible = false, onClose }: DialogueProps) {
                     Processing...
                   </>
                 ) : (
-                  "Create"
+                  `${isUpdate ? "Update Event" : "Create Event"}`
                 )}
               </Button>
             </form>

@@ -96,14 +96,20 @@ function Dashboard() {
           <label className="cursor-pointer">
             <input type="file" accept=".csv" className="hidden" />
             <Button
-              className="bg-primary hover:bg-primary/90 text-white cursor-pointer"
+              className="bg-primary hover:bg-primary/90 text-white cursor-pointer rounded-lg"
               size="default"
+              onClick={(e) => {
+                const input = e.currentTarget.parentElement?.querySelector(
+                  'input[type="file"]',
+                ) as HTMLInputElement;
+                input?.click();
+              }}
             >
               📤 Upload CSV
             </Button>
           </label>
           <Button
-            className="bg-primary hover:bg-primary/90 text-white"
+            className="bg-primary hover:bg-primary/90 text-white rounded-lg"
             size="default"
           >
             📥 Download CSV Report
