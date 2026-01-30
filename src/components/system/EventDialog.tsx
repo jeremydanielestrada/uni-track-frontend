@@ -8,7 +8,7 @@ import { Button } from "../ui/Button";
 import { Loader, X } from "lucide-react";
 import { api } from "../../utils/Axios";
 
-interface DialogueProps {
+interface DialogProps {
   isDialogVisible: boolean;
   onClose: () => void;
   eventData: Event;
@@ -20,7 +20,7 @@ const formDataDefault = {
   name: "",
   date: "",
 };
-function EventDialog({ isDialogVisible, eventData, onClose }: DialogueProps) {
+function EventDialog({ isDialogVisible, eventData, onClose }: DialogProps) {
   const [formData, setFormData] = useState<EventForm>(formDataDefault);
   const [formAction, setFormAction] = useState(formActionDefault);
   const [isUpdate, setIsUpdate] = useState<boolean>(false);

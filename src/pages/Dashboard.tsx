@@ -3,10 +3,13 @@ import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { useState } from "react";
 import EventDialog from "../components/system/EventDialog";
+import EventList from "../components/system/EventList";
+import type { Event } from "../App.types";
 
 function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogVisible, setisDialogVisible] = useState(false);
+  const [eventData, setEventData] = useState<Event | null>(null);
   // const [uploadMessage, setUploadMessage] = useState("");
   const events = [
     { id: 1, name: "Programming Workshop", date: "22 Jan 2025", students: 6 },
@@ -55,24 +58,7 @@ function Dashboard() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {events.map((event) => (
-            <Card
-              key={event.id}
-              className="p-4 border border-secondary rounded-lg"
-            >
-              <h4 className="font-semibold text-foreground mb-2">
-                {event.name}
-              </h4>
-              <p className="text-sm text-muted-foreground mb-2">
-                📅 {event.date}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                👥 {event.students} students attended
-              </p>
-            </Card>
-          ))}
-        </div>
+        <EventList />
 
         <EventDialog
           isDialogVisible={isDialogVisible}
