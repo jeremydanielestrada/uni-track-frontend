@@ -15,7 +15,10 @@ function Dashboard() {
   const [eventData, setEventData] = useState<Event | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [students, setStudents] = useState<any[]>([]);
 
   const fetchEvents = async () => {
     setIsLoading(true);
@@ -60,21 +63,52 @@ function Dashboard() {
     handleCloseDialog();
   };
 
-  const students = [
-    { id: "STU001", name: "Juan Dela Cruz", hours: 24.5 },
-    { id: "STU002", name: "Maria Santos", hours: 18.75 },
-    { id: "STU003", name: "Pedro Reyes", hours: 32.0 },
-    { id: "STU004", name: "Ana Garcia", hours: 15.25 },
-    { id: "STU005", name: "Carlos Lopez", hours: 28.5 },
-    { id: "STU006", name: "Isabella Martinez", hours: 21.0 },
-    { id: "STU007", name: "Diego Morales", hours: 35.75 },
-    { id: "STU008", name: "Sofia Nguyen", hours: 19.5 },
-  ];
+  const handleSelectEvent = async (event: Event) => {
+    setSelectedEvent(event);
+    // Fetch students for this event
+    try {
+      const res = await api.get(`/students/get/${event.id}/students`);
+      setStudents(res.data.students || []);
+    } catch (error: any) {
+      console.log("Error fetching students:", error);
+      setStudents([]);
+    }
+  };
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!selectedEvent) {
+      alert("Please select an event first");
+      e.target.value = "";
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setIsUploading(true);
+      const res = await api.post(
+        `/students/upload/${selectedEvent.id}`,
+        formData,
+      );
+      alert(res.data.message || "Students uploaded successfully!");
+      // Refresh students list
+      handleSelectEvent(selectedEvent);
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Error uploading file");
+    } finally {
+      e.target.value = ""; // reset input
+      setIsUploading(false);
+    }
+  };
 
   const filteredStudents = students.filter(
     (student) =>
       student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.id.toLowerCase().includes(searchTerm.toLowerCase()),
+      student.id_num.toLowerCase().includes(searchTerm.toLowerCase()),
   );
   return (
     <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -114,6 +148,8 @@ function Dashboard() {
             events={events}
             onEdit={handleEditEvent}
             onDelete={handleDeleteEvent}
+            onSelect={handleSelectEvent}
+            selectedEventId={selectedEvent?.id}
           />
         )}
 
@@ -129,17 +165,25 @@ function Dashboard() {
       <div className="mb-6 flex flex-col md:flex-row gap-4 items-start md:items-end">
         <div className="flex-1">
           <label className="block text-sm font-medium text-foreground mb-2">
-            Search Students
+            {selectedEvent
+              ? `Students for: ${selectedEvent.name}`
+              : "Select an event to view students"}
           </label>
           <Input
             placeholder="Search by name or student ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            disabled={!selectedEvent}
           />
         </div>
         <div className="flex gap-2">
           <label className="cursor-pointer">
-            <input type="file" accept=".csv" className="hidden" />
+            <input
+              type="file"
+              accept=".csv,.xlsx"
+              className="hidden"
+              onChange={handleUpload}
+            />
             <Button
               className="bg-primary hover:bg-primary/90 text-white cursor-pointer rounded-lg"
               size="default"
@@ -149,13 +193,19 @@ function Dashboard() {
                 ) as HTMLInputElement;
                 input?.click();
               }}
+              disabled={!selectedEvent}
             >
-              📤 Upload CSV
+              {isUploading ? (
+                <Loader className="h-4 w-4 animate-spin" />
+              ) : (
+                " 📤 Upload CSV"
+              )}
             </Button>
           </label>
           <Button
             className="bg-primary hover:bg-primary/90 text-white rounded-lg"
             size="default"
+            disabled={!selectedEvent}
           >
             📥 Download CSV Report
           </Button>
@@ -172,52 +222,69 @@ function Dashboard() {
       {/* Students Table */}
       <Card className="p-6 shadow-md overflow-x-auto">
         <h3 className="text-lg font-bold text-foreground mb-4">
-          Students ({filteredStudents.length})
+          {selectedEvent ? `Students (${filteredStudents.length})` : "Students"}
         </h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-secondary">
-                <th className="text-left py-3 px-4 font-semibold text-foreground">
-                  Student ID
-                </th>
-                <th className="text-left py-3 px-4 font-semibold text-foreground">
-                  Name
-                </th>
-                <th className="text-left py-3 px-4 font-semibold text-foreground">
-                  Total Hours Rendered
-                </th>
-                <th className="text-left py-3 px-4 font-semibold text-foreground">
-                  Assign Students
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredStudents.map((student) => (
-                <tr
-                  key={student.id}
-                  className="border-b border-border hover:bg-secondary/30 transition"
-                >
-                  <td className="py-3 px-4 text-foreground font-medium">
-                    {student.id}
-                  </td>
-                  <td className="py-3 px-4 text-foreground">{student.name}</td>
-                  <td className="py-3 px-4">
-                    <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                      {student.hours}h
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {filteredStudents.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">
-              No students found matching your search.
+        {!selectedEvent ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground text-lg">
+              👆 Select an event above to view its students
             </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-secondary">
+                  <th className="text-left py-3 px-4 font-semibold text-foreground">
+                    Student ID
+                  </th>
+                  <th className="text-left py-3 px-4 font-semibold text-foreground">
+                    Name
+                  </th>
+                  <th className="text-left py-3 px-4 font-semibold text-foreground">
+                    Program
+                  </th>
+                  <th className="text-left py-3 px-4 font-semibold text-foreground">
+                    Total Hours Rendered
+                  </th>
+                  <th className="text-left py-3 px-4 font-semibold text-foreground">
+                    Assign Students
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredStudents.map((student) => (
+                  <tr
+                    key={student.id}
+                    className="border-b border-border hover:bg-secondary/30 transition"
+                  >
+                    <td className="py-3 px-4 text-foreground font-medium">
+                      {student.id_num}
+                    </td>
+                    <td className="py-3 px-4 text-foreground">
+                      {student.name}
+                    </td>
+
+                    <td className="py-3 px-4 text-foreground">
+                      {student.program}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                        {student.hours || 0}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {filteredStudents.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">
+                  No students found matching your search.
+                </p>
+              </div>
+            )}
           </div>
         )}
       </Card>
