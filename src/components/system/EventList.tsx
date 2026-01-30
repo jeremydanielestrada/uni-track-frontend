@@ -69,6 +69,10 @@ function EventList({
             <p className="text-sm text-muted-foreground">
               👥 {event.students?.length ?? 0} Students
             </p>
+
+            <p className="text-sm text-muted-foreground">
+              Event code: {event.event_code}
+            </p>
             {selectedEventId === event.id && (
               <div className="mt-2 pt-2 border-t border-primary/20">
                 <span className="text-xs font-medium text-primary">

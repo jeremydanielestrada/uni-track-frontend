@@ -48,6 +48,7 @@ function Dashboard() {
     try {
       await api.delete(`/events/delete/${eventId}`);
       await fetchEvents(); // Refresh list
+      setStudents([]);
     } catch (error: any) {
       alert(error.response?.data?.message || "Error deleting event");
     }
