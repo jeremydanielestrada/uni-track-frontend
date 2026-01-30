@@ -1,12 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 interface CardProps {
   children: React.ReactNode;
   className: string;
+  onClick?: (e: any) => any;
 }
 
-function Card({ children, className }: CardProps) {
+function Card({ header, children, className, onClick }: CardProps) {
   return (
     <div
-      className={`p-8 border border-secondary shadow-lg rounded ${className}`}
+      onClick={onClick}
+      className={`border border-secondary shadow-lg rounded ${className}`}
     >
       {children}
     </div>

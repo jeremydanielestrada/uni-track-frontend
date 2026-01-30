@@ -57,11 +57,16 @@ function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <p
-        className={`text-center mb-3 font-semibold ${isError ? "text-red-500" : "text-green-500"}`}
-      >
-        {isError ? formAction.formSuccessMessage : formAction.formErrorMessage}
-      </p>
+      {formAction.formErrorMessage && (
+        <p className="text-center mb-3 font-semibold text-red-500">
+          {formAction.formErrorMessage}
+        </p>
+      )}
+      {formAction.formSuccessMessage && (
+        <p className="text-center mb-3 font-semibold text-green-500">
+          {formAction.formSuccessMessage}
+        </p>
+      )}
 
       <Input
         label="Name"

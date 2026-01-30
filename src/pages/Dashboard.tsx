@@ -2,11 +2,12 @@ import Card from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { useState } from "react";
+import EventDialog from "../components/system/EventDialog";
 
 function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [showEventModal, setShowEventModal] = useState(false);
-  const [uploadMessage, setUploadMessage] = useState("");
+  const [isDialogVisible, setisDialogVisible] = useState(false);
+  // const [uploadMessage, setUploadMessage] = useState("");
   const events = [
     { id: 1, name: "Programming Workshop", date: "22 Jan 2025", students: 6 },
     { id: 2, name: "Leadership Summit", date: "20 Jan 2025", students: 8 },
@@ -46,8 +47,9 @@ function Dashboard() {
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-bold text-foreground">Events</h3>
           <Button
-            className="bg-primary hover:bg-primary/90 text-white"
+            className="bg-primary hover:bg-primary/90 text-white rounded-lg"
             size="default"
+            onClick={() => setisDialogVisible(!isDialogVisible)}
           >
             + Create Event
           </Button>
@@ -72,20 +74,10 @@ function Dashboard() {
           ))}
         </div>
 
-        {/* {showEventModal && (
-          <div className="mt-6 p-4 bg-secondary rounded-lg border border-border">
-            <h4 className="font-semibold text-foreground mb-4">
-              Create New Event
-            </h4>
-            <div className="space-y-4">
-              <Input placeholder="Event Name" />
-              <Input type="date" />
-              <Button className="bg-primary hover:bg-primary/90 text-white w-full">
-                Create Event
-              </Button>
-            </div>
-          </div>
-        )} */}
+        <EventDialog
+          isDialogVisible={isDialogVisible}
+          onClose={() => setisDialogVisible(!isDialogVisible)}
+        />
       </Card>
 
       {/* Search and File Operations */}
@@ -120,11 +112,11 @@ function Dashboard() {
       </div>
 
       {/* Upload Message */}
-      {uploadMessage && (
+      {/* {uploadMessage && (
         <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-700 rounded-lg text-sm">
           {uploadMessage}
         </div>
-      )}
+      )} */}
 
       {/* Students Table */}
       <Card className="p-6 shadow-md overflow-x-auto">
